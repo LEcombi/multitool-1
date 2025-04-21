@@ -2,6 +2,7 @@ import requests, threading, time, sys, warnings, subprocess
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from colorama import Fore
+from others import reload
 
 
 def get_all_forms(url):
@@ -125,22 +126,9 @@ def start_scan():
 
 
 def start_sql_():
+    reload("sql_tester")
     global thr, delay, FILE, checked, s
     subprocess.call('clear', shell=True)
-
-    print(f"""{Fore.CYAN}
-  ██████   █████   ██▓       ▄▄▄█████▓▓█████   ██████ ▄▄▄█████▓▓█████  ██▀███  
-▒██    ▒ ▒██▓  ██▒▓██▒       ▓  ██▒ ▓▒▓█   ▀ ▒██    ▒ ▓  ██▒ ▓▒▓█   ▀ ▓██ ▒ ██▒
-░ ▓██▄   ▒██▒  ██░▒██░       ▒ ▓██░ ▒░▒███   ░ ▓██▄   ▒ ▓██░ ▒░▒███   ▓██ ░▄█ ▒
-  ▒   ██▒░██  █▀ ░▒██░       ░ ▓██▓ ░ ▒▓█  ▄   ▒   ██▒░ ▓██▓ ░ ▒▓█  ▄ ▒██▀▀█▄  
-▒██████▒▒░▒███▒█▄ ░██████▒     ▒██▒ ░ ░▒████▒▒██████▒▒  ▒██▒ ░ ░▒████▒░██▓ ▒██▒
-▒ ▒▓▒ ▒ ░░░ ▒▒░ ▒ ░ ▒░▓  ░     ▒ ░░   ░░ ▒░ ░▒ ▒▓▒ ▒ ░  ▒ ░░   ░░ ▒░ ░░ ▒▓ ░▒▓░
-░ ░▒  ░ ░ ░ ▒░  ░ ░ ░ ▒  ░       ░     ░ ░  ░░ ░▒  ░ ░    ░     ░ ░  ░  ░▒ ░ ▒░
-░  ░  ░     ░   ░   ░ ░        ░         ░   ░  ░  ░    ░         ░     ░░   ░ 
-      ░      ░        ░  ░               ░  ░      ░              ░  ░   ░     
-
-
-    """)
 
     thr = int(input(f'{Fore.BLUE}[CONSOLE] Please enter threads number (30 for best resulsts): '))
     delay = int(input(f'{Fore.BLUE}[CONSOLE] Please enter delay (enter 0 to skip): '))

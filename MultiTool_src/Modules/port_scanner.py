@@ -2,24 +2,11 @@
 
 import socket, subprocess, sys, time, os, threading
 from colorama import Fore
-
+from others import reload
 
 class scanner():
     def __init__(self):
-        subprocess.call('clear', shell=True)
-        print(f"""{Fore.GREEN}
- ██▓███       ██████  ▄████▄   ▄▄▄       ███▄    █  ███▄    █ ▓█████  ██▀███  
-▓██░  ██▒   ▒██    ▒ ▒██▀ ▀█  ▒████▄     ██ ▀█   █  ██ ▀█   █ ▓█   ▀ ▓██ ▒ ██▒
-▓██░ ██▓▒   ░ ▓██▄   ▒▓█    ▄ ▒██  ▀█▄  ▓██  ▀█ ██▒▓██  ▀█ ██▒▒███   ▓██ ░▄█ ▒
-▒██▄█▓▒ ▒     ▒   ██▒▒▓▓▄ ▄██▒░██▄▄▄▄██ ▓██▒  ▐▌██▒▓██▒  ▐▌██▒▒▓█  ▄ ▒██▀▀█▄  
-▒██▒ ░  ░   ▒██████▒▒▒ ▓███▀ ░ ▓█   ▓██▒▒██░   ▓██░▒██░   ▓██░░▒████▒░██▓ ▒██▒
-▒▓▒░ ░  ░   ▒ ▒▓▒ ▒ ░░ ░▒ ▒  ░ ▒▒   ▓▒█░░ ▒░   ▒ ▒ ░ ▒░   ▒ ▒ ░░ ▒░ ░░ ▒▓ ░▒▓░
-░▒ ░        ░ ░▒  ░ ░  ░  ▒     ▒   ▒▒ ░░ ░░   ░ ▒░░ ░░   ░ ▒░ ░ ░  ░  ░▒ ░ ▒░
-░░          ░  ░  ░  ░          ░   ▒      ░   ░ ░    ░   ░ ░    ░     ░░   ░ 
-                  ░  ░ ░            ░  ░         ░          ░    ░  ░   ░     
-                     ░   
-                                                                          
-""")
+        reload("port_scanner")
         self.server = input(f"{Fore.BLUE}[CONSOLE] Enter ip/domain to scan: ")
         self.thr = int(input("Please enter threads number: "))
         self.to_scan = int(input("How many ports to scan (1k-10k): "))
@@ -73,4 +60,4 @@ class scanner():
         for t in threads:
             t.join()
         self.f.close()
-        print(f"{Fore.YELLOW}[CONSOLE] Found {self.good} ports out of {self.to_scan}")        
+        print(f"{Fore.YELLOW}[CONSOLE] Found {self.good} ports out of {self.to_scan}")

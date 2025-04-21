@@ -1,25 +1,11 @@
 import shodan
 import subprocess, sys
 from colorama import Fore
-
-
+from banners import shodan_banner
+from others import reload
 class Shodan1():
     def __init__(self):
-        subprocess.call('clear', shell=True)
-
-        print(f"""{Fore.RED}
-  ██████  ██░ ██  ▒█████  ▓█████▄  ▄▄▄      ███▄    █ 
-▒██    ▒ ▓██░ ██▒▒██▒  ██▒▒██▀ ██▌▒████▄    ██ ▀█   █ 
-░ ▓██▄   ▒██▀▀██░▒██░  ██▒░██   █▌▒██  ▀█▄ ▓██  ▀█ ██▒
-  ▒   ██▒░▓█ ░██ ▒██   ██░░▓█▄   ▌░██▄▄▄▄██▓██▒  ▐▌██▒
-▒██████▒▒░▓█▒░██▓░ ████▓▒░░▒████▓  ▓█   ▓██▒██░   ▓██░
-▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░ ▒░▒░▒░  ▒▒▓  ▒  ▒▒   ▓▒█░ ▒░   ▒ ▒ 
-░ ░▒  ░ ░ ▒ ░▒░ ░  ░ ▒ ▒░  ░ ▒  ▒   ▒   ▒▒ ░ ░░   ░ ▒░
-░  ░  ░   ░  ░░ ░░ ░ ░ ▒   ░ ░  ░   ░   ▒     ░   ░ ░ 
-      ░   ░  ░  ░    ░ ░     ░          ░  ░        ░ 
-                           ░                          
-                           
-        """)
+        reload('shodan')
 
         print(f"{Fore.BLUE}[CONSOLE] Please insert your Shodan api key.")
         print(f"{Fore.YELLOW}[INFO] Get your Shodan api key here: https://account.shodan.io/\n")
