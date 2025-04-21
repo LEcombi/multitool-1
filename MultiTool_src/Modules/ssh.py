@@ -12,7 +12,20 @@ init(autoreset=True)
 class Main:
     def __init__(self):
         subprocess.call('clear', shell=True)
-        print(f"""{Fore.RED}# © SSH Bruteforcer - Made by Yuval Simon. For www.bogan.cool\n""")
+
+        print(f"""{Fore.RED}
+  ██████  ██████ ██░ ██     ▄▄▄▄   ██▀███  █    ██▄▄▄█████▓█████  █████▒
+▒██    ▒▒██    ▒▓██░ ██▒   ▓█████▄▓██ ▒ ██▒██  ▓██▓  ██▒ ▓▓█   ▀▓██   ▒ 
+░ ▓██▄  ░ ▓██▄  ▒██▀▀██░   ▒██▒ ▄█▓██ ░▄█ ▓██  ▒██▒ ▓██░ ▒▒███  ▒████ ░ 
+  ▒   ██▒ ▒   ██░▓█ ░██    ▒██░█▀ ▒██▀▀█▄ ▓▓█  ░██░ ▓██▓ ░▒▓█  ▄░▓█▒  ░ 
+▒██████▒▒██████▒░▓█▒░██▓   ░▓█  ▀█░██▓ ▒██▒▒█████▓  ▒██▒ ░░▒████░▒█░    
+▒ ▒▓▒ ▒ ▒ ▒▓▒ ▒ ░▒ ░░▒░▒   ░▒▓███▀░ ▒▓ ░▒▓░▒▓▒ ▒ ▒  ▒ ░░  ░░ ▒░ ░▒ ░    
+░ ░▒  ░ ░ ░▒  ░ ░▒ ░▒░ ░   ▒░▒   ░  ░▒ ░ ▒░░▒░ ░ ░    ░    ░ ░  ░░      
+░  ░  ░ ░  ░  ░  ░  ░░ ░    ░    ░  ░░   ░ ░░░ ░ ░  ░        ░   ░ ░    
+      ░       ░  ░  ░  ░    ░        ░       ░               ░  ░       
+                                 ░                                      
+        """)
+
         print(f"{Fore.BLUE}Choose the mode:\n"
               "1. Wordlist for both usernames and passwords\n"
               "2. Separate username and password lists\n"
@@ -53,18 +66,11 @@ class Main:
         return users, passwords
 
     def auto_generate(self):
-        # Ask for user input
         u_len = int(input('Length of username: ').strip())
         p_len = int(input('Length of password: ').strip())
         print('Choose character types:\n1. Numbers only\n2. Letters only\n3. Numbers + Letters')
         choice = input('Selection [1-3]: ').strip()
-        charset = ''
-        if choice == '1':
-            charset = string.digits
-        elif choice == '2':
-            charset = string.ascii_letters
-        else:
-            charset = string.ascii_letters + string.digits
+        charset = string.digits if choice == '1' else string.ascii_letters if choice == '2' else string.ascii_letters + string.digits
 
         while not self.found:
             uname = ''.join(random.choice(charset) for _ in range(u_len))
@@ -123,4 +129,3 @@ class Main:
         # Wait for threads to finish
         for t in self.threads:
             t.join()
-
